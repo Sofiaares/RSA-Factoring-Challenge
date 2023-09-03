@@ -1,27 +1,47 @@
-#!/usr/bin/python3
-""" This is a executable file that factorizes the numbera """
+#!/usr/bin/env bash
+#is a challenge
+check_factor()
+{
+	if [ $# -ne 3 ];
+        then
+                args=("$@")
+                count=0
+                num2=1
+                for a in ${args[*]};
+                do
+                        if [ $count -gt 1 ];
+                        then
+                                num2=$(echo $a*$num2 | bc)
+                        fi
+                        count=$((count + 1))
+                done
+        else
+                num2=$3
+        fi
+         num1=$2
+        num=$(echo "$1" | tr ':' '=')
 
-# We will import the sys.argv function to read the file
-from sys import argv
+        result=$(echo "if($num2 > $num1) 1 else 0" | bc)
+	        if ((result == 1)); then
+		        numcp=$num1
+		        num1=$num2
+		        num2=$numcp
+                fi
 
-with open(argv[1]) as f:
-    for ln in f:
-        # We convert each line to a int
-        num = int(ln)
+        echo "$num$num1*$num2"
+}
 
-        print("{:d}=".format(num), end="")
-        if num % 2 == 0:
-            print("{}*2".format(num//2))
-            continue
+if [ $# -ne 1 ]
+then
+        echo 'Usage: rsa <file>'
+        exit 1
+else
 
-        # Check if the number is odd
-        for i in range(3, num, 2):
-            if num % i == 0:
-                # Check if the factor is found
-                fac = num//i
-                for j in range(3, fac, 2):
-                    if fac % j == 0 or i % j == 0:
-                        # Check if he factor is not a prime, break loop
-                        break
-                print("{}*{}".format(fac, i))
-                break
+        while read i
+        do
+
+                result=$(factor "$i")
+                check_factor $result
+
+        done < "$1"
+fi
